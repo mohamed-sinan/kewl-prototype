@@ -1,14 +1,18 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
+const Ingredient = require('./models/Ingredient');
 
 const app = express();
 const port = 5000;
 
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/recipe_suggester', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
+
 app.use(cors());
 app.use(express.json());
-
-// In-memory ingredient storage
-let ingredients = [];
 
 // Root route for test
 app.get('/', (req, res) => {
@@ -16,59 +20,68 @@ app.get('/', (req, res) => {
 });
 
 // Get all ingredients
-app.get('/ingredients', (req, res) => {
-  res.status(200).json({ ingredients });
+app.get('/ingredients', async (req, res) => {
+  try {
+    const ingredients = await Ingredient.find();
+    res.status(200).json({ ingredients });
+  } catch (err) {
+    console.error('Error fetching ingredients:', err);
+    res.status(500).json({ message: 'Failed to fetch ingredients.' });
+  }
 });
 
 // Add a new ingredient
-app.post('/ingredients', (req, res) => {
-  const { ingredient } = req.body;
-  if (ingredient && typeof ingredient === 'string') {
-    ingredients.push(ingredient);
+app.post('/ingredients', async (req, res) => {
+  const { name, expiryDate } = req.body;
+  if (!name) {
+    return res.status(400).json({ message: 'Ingredient name is required.' });
+  }
+
+  try {
+    const newIngredient = new Ingredient({ name, expiryDate });
+    await newIngredient.save();
     res.status(200).json({ message: 'Ingredient added!' });
-  } else {
-    res.status(400).json({ message: 'Ingredient is required and must be a string.' });
+  } catch (err) {
+    console.error('Error adding ingredient:', err);
+    res.status(500).json({ message: 'Failed to add ingredient.' });
   }
 });
 
-// Delete an ingredient by name (case-insensitive)
-app.delete('/ingredients/:name', (req, res) => {
-  const name = req.params.name.toLowerCase();
-  const originalLength = ingredients.length;
+// Delete an ingredient by ID
+app.delete('/ingredients/:id', async (req, res) => {
+  const ingredientId = req.params.id;
+  try {
+    const result = await Ingredient.findByIdAndDelete(ingredientId);
 
-  ingredients = ingredients.filter(item => item.toLowerCase() !== name);
-
-  if (ingredients.length < originalLength) {
-    res.status(200).json({ message: 'Ingredient deleted!' });
-  } else {
-    res.status(404).json({ message: 'Ingredient not found.' });
+    if (result) {
+      return res.status(200).json({ message: 'Ingredient deleted!' });
+    } else {
+      return res.status(404).json({ message: 'Ingredient not found.' });
+    }
+  } catch (err) {
+    console.error('Error deleting ingredient:', err.message);
+    res.status(500).json({ message: 'Failed to delete ingredient.' });
   }
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
-
-
+// Spoonacular API integration
 const axios = require('axios');
-
-// Replace this with your actual Spoonacular API key
 const SPOONACULAR_API_KEY = '4510937ea1214931b5f4454559560f9d';
 
 // Get recipe suggestions based on current ingredients
 app.get('/recipes', async (req, res) => {
   try {
+    const ingredients = await Ingredient.find();
     if (ingredients.length === 0) {
       return res.status(400).json({ message: 'No ingredients available to suggest recipes.' });
     }
 
-    const ingredientString = ingredients.join(',');
+    const ingredientString = ingredients.map(i => i.name).join(',');
 
     const response = await axios.get('https://api.spoonacular.com/recipes/findByIngredients', {
       params: {
         ingredients: ingredientString,
-        number: 5, // number of recipes to return
+        number: 5,
         apiKey: SPOONACULAR_API_KEY,
       },
     });
@@ -114,4 +127,9 @@ app.get('/recipes/:id', async (req, res) => {
     console.error('Error fetching recipe details:', err.message);
     res.status(500).json({ message: 'Failed to fetch recipe details.' });
   }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });

@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 
 function IngredientInput() {
   const [ingredient, setIngredient] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
   const [ingredientList, setIngredientList] = useState([]);
   const [recipes, setRecipes] = useState([]);
-  const [selectedRecipe, setSelectedRecipe] = useState(null); // Store selected recipe details
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   const handleChange = (e) => {
     setIngredient(e.target.value);
+  };
+
+  const handleExpiryDateChange = (e) => {
+    setExpiryDate(e.target.value);
   };
 
   // Fetch ingredients from the backend
@@ -32,7 +37,7 @@ function IngredientInput() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ingredient }),
+        body: JSON.stringify({ name: ingredient, expiryDate }),
       });
 
       const data = await response.json();
@@ -40,6 +45,7 @@ function IngredientInput() {
       if (response.ok) {
         console.log('Ingredient added successfully!');
         setIngredient('');
+        setExpiryDate('');
         fetchIngredients(); // Refresh the list
       } else {
         console.error('Error adding ingredient:', data.message);
@@ -50,9 +56,9 @@ function IngredientInput() {
   };
 
   // Handle ingredient deletion
-  const handleDelete = async (name) => {
+  const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/ingredients/${name}`, {
+      const res = await fetch(`http://localhost:5000/ingredients/${id}`, {
         method: 'DELETE',
       });
 
@@ -115,15 +121,21 @@ function IngredientInput() {
           onChange={handleChange}
           placeholder="e.g., Milk"
         />
+        <input
+          type="date"
+          value={expiryDate}
+          onChange={handleExpiryDateChange}
+          placeholder="Expiry Date"
+        />
         <button type="submit">Add Ingredient</button>
       </form>
 
       <h3>Ingredients in Your Fridge:</h3>
       <ul>
-        {ingredientList.map((item, index) => (
-          <li key={index}>
-            {item}{' '}
-            <button onClick={() => handleDelete(item)}>Delete</button>
+        {ingredientList.map((item) => (
+          <li key={item._id}>
+            {item.name} (Expires: {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}){' '}
+            <button onClick={() => handleDelete(item._id)}>Delete</button>
           </li>
         ))}
       </ul>
