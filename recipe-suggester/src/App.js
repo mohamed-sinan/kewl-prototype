@@ -5,7 +5,7 @@ import IngredientInput from './IngredientInput';
 function App() {
   return (
     <div className="App">
-      <h1>Recipe Suggester</h1>
+      <h1>KEWL</h1>
       <IngredientInput />
     </div>
   );

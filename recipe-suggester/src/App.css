@@ -1,38 +1,152 @@
+/* Import font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+/* Base setup */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to right, #e0ecff, #f9fbff); /* NEW background */
+  color: #333;
+}
+
 .App {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 40px;
+  background-color: lavenderblush;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Typography */
+h1 {
+  font-size: 32px;
+  font-weight: 700;
   text-align: center;
+  margin-bottom: 10px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h2 {
+  font-size: 20px;
+  margin: 30px 0 10px;
+  font-weight: 600;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Form */
+form {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  margin-top: 15px;
+}
+
+input[type="text"],
+input[type="date"] {
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  transition: border 0.2s ease;
+  width: 100%;
+  max-width: 220px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* All buttons default (Add & Suggest) */
+button {
+  background-color: violet;
   color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.1s ease;
 }
 
-.App-link {
-  color: #61dafb;
+button:hover {
+  background-color: #1e4ed8;
+  transform: translateY(-1px);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Specific Delete button style — OVERRIDE */
+button.delete {
+  background-color: #ef4444 !important;
+}
+
+button.delete:hover {
+  background-color: #dc2626 !important;
+}
+
+/* Ingredient list */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f8fa;
+  margin-bottom: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+}
+
+li:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Suggest button layout */
+.suggest-btn {
+  display: block;
+  margin: 30px auto 0;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .App {
+    padding: 25px;
+    margin: 20px;
   }
-  to {
-    transform: rotate(360deg);
+
+  form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  input,
+  button {
+    width: 100%;
   }
 }

@@ -119,7 +119,7 @@ function IngredientInput() {
           type="text"
           value={ingredient}
           onChange={handleChange}
-          placeholder="e.g., Milk"
+          placeholder="e.g. Milk"
         />
         <input
           type="date"
@@ -127,7 +127,7 @@ function IngredientInput() {
           onChange={handleExpiryDateChange}
           placeholder="Expiry Date"
         />
-        <button type="submit">Add Ingredient</button>
+        <button type="submit" >Add Ingredient</button>
       </form>
 
       <h3>Ingredients in Your Fridge:</h3>
@@ -135,7 +135,7 @@ function IngredientInput() {
         {ingredientList.map((item) => (
           <li key={item._id}>
             {item.name} (Expires: {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : 'N/A'}){' '}
-            <button onClick={() => handleDelete(item._id)}>Delete</button>
+            <button onClick={() => handleDelete(item._id)} className='delete'>Delete</button>
           </li>
         ))}
       </ul>
